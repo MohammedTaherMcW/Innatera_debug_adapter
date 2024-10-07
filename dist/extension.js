@@ -202,7 +202,31 @@
                             const t = n.window.createTreeView("platformio-debug.peripherals", {
                                 treeDataProvider: this.peripheralProvider
                             });
-                            e.subscriptions.push(n.debug.registerDebugConfigurationProvider("platformio-debug", new d.PlatformIODebugConfigurationProvider), t, t.onDidExpandElement(this.peripheralProvider.onDidExpandElement.bind(this.peripheralProvider)), t.onDidCollapseElement(this.peripheralProvider.onDidCollapseElement.bind(this.peripheralProvider)), n.window.registerTreeDataProvider("platformio-debug.registers", this.registerProvider), n.window.registerTreeDataProvider("platformio-debug.memory", this.memoryTreeProvider), n.window.registerTreeDataProvider("platformio-debug.disassembly", this.disassemblyTreeProvider), n.workspace.registerTextDocumentContentProvider("examinememory", this.memoryContentProvider), n.workspace.registerTextDocumentContentProvider("disassembly", new h.DisassemblyContentProvider), n.commands.registerCommand("platformio-debug.peripherals.updateNode", this.peripheralsUpdateNode.bind(this)), n.commands.registerCommand("platformio-debug.peripherals.selectedNode", this.peripheralsSelectedNode.bind(this)), n.commands.registerCommand("platformio-debug.peripherals.copyValue", this.peripheralsCopyValue.bind(this)), n.commands.registerCommand("platformio-debug.peripherals.setFormat", this.peripheralsSetFormat.bind(this)), n.commands.registerCommand("platformio-debug.registers.selectedNode", this.registersSelectedNode.bind(this)), n.commands.registerCommand("platformio-debug.registers.copyValue", this.registersCopyValue.bind(this)), n.commands.registerCommand("platformio-debug.registers.setFormat", this.registersSetFormat.bind(this)), n.commands.registerCommand("platformio-debug.memory.deleteHistoryItem", this.memoryDeleteHistoryItem.bind(this)), n.commands.registerCommand("platformio-debug.memory.clearHistory", this.memoryClearHistory.bind(this)), n.commands.registerCommand("platformio-debug.examineMemory", this.examineMemory.bind(this)), n.commands.registerCommand("platformio-debug.viewDisassembly", this.showDisassembly.bind(this)), n.commands.registerCommand("platformio-debug.setForceDisassembly", this.setForceDisassembly.bind(this)), n.debug.onDidReceiveDebugSessionCustomEvent(this.receivedCustomEvent.bind(this)), n.debug.onDidStartDebugSession(this.debugSessionStarted.bind(this)), n.debug.onDidTerminateDebugSession(this.debugSessionTerminated.bind(this)), n.window.onDidChangeActiveTextEditor(this.activeEditorChanged.bind(this)), n.window.onDidChangeTextEditorSelection((e => {
+                            e.subscriptions.push(n.debug.registerDebugConfigurationProvider("platformio-debug", new d.PlatformIODebugConfigurationProvider),
+                            t, t.onDidExpandElement(this.peripheralProvider.onDidExpandElement.bind(this.peripheralProvider)), 
+                            t.onDidCollapseElement(this.peripheralProvider.onDidCollapseElement.bind(this.peripheralProvider)), 
+                            n.window.registerTreeDataProvider("platformio-debug.registers", this.registerProvider), 
+                            n.window.registerTreeDataProvider("platformio-debug.memory", this.memoryTreeProvider), 
+                            n.window.registerTreeDataProvider("platformio-debug.disassembly", this.disassemblyTreeProvider), 
+                            n.workspace.registerTextDocumentContentProvider("examinememory", this.memoryContentProvider), 
+                            n.workspace.registerTextDocumentContentProvider("disassembly", new h.DisassemblyContentProvider), 
+                            n.commands.registerCommand("platformio-debug.peripherals.updateNode", this.peripheralsUpdateNode.bind(this)), 
+                            n.commands.registerCommand("platformio-debug.peripherals.selectedNode", this.peripheralsSelectedNode.bind(this)), 
+                            n.commands.registerCommand("platformio-debug.peripherals.copyValue", this.peripheralsCopyValue.bind(this)), 
+                            n.commands.registerCommand("platformio-debug.peripherals.setFormat", this.peripheralsSetFormat.bind(this)), 
+                            n.commands.registerCommand("platformio-debug.registers.selectedNode", this.registersSelectedNode.bind(this)), 
+                            n.commands.registerCommand("platformio-debug.registers.copyValue", this.registersCopyValue.bind(this)), 
+                            n.commands.registerCommand("platformio-debug.registers.setFormat", this.registersSetFormat.bind(this)), 
+                            n.commands.registerCommand("platformio-debug.registers.UpdateNode", this.registerUpdateNode.bind(this)), 
+                            n.commands.registerCommand("platformio-debug.memory.deleteHistoryItem", this.memoryDeleteHistoryItem.bind(this)), 
+                            n.commands.registerCommand("platformio-debug.memory.clearHistory", this.memoryClearHistory.bind(this)), 
+                            n.commands.registerCommand("platformio-debug.examineMemory", this.examineMemory.bind(this)), 
+                            n.commands.registerCommand("platformio-debug.viewDisassembly", this.showDisassembly.bind(this)), 
+                            n.commands.registerCommand("platformio-debug.setForceDisassembly", this.setForceDisassembly.bind(this)), 
+                            n.debug.onDidReceiveDebugSessionCustomEvent(this.receivedCustomEvent.bind(this)), 
+                            n.debug.onDidStartDebugSession(this.debugSessionStarted.bind(this)), 
+                            n.debug.onDidTerminateDebugSession(this.debugSessionTerminated.bind(this)), 
+                            n.window.onDidChangeActiveTextEditor(this.activeEditorChanged.bind(this)), n.window.onDidChangeTextEditorSelection((e => {
                                 e && e.textEditor.document.fileName.endsWith(".dbgmem") && this.memoryContentProvider.handleSelection(e)
                             })))
                         }
@@ -337,7 +361,7 @@
                                     description: "Automatically choose format (Inherits from parent)",
                                     value: o.NumberFormat.Auto
                                 }, {
-                                    label: "Hex",
+                                    label: "Hex Values",
                                     description: "Format value in hexidecimal",
                                     value: o.NumberFormat.Hexidecimal
                                 }, {
@@ -379,6 +403,30 @@
                                     value: o.NumberFormat.Binary
                                 }]);
                                 e.node.setFormat(t.value), this.registerProvider.refresh()
+                            }))
+                        }
+                        registerUpdateNode(e){
+                            return r(this, void 0, void 0, (function*() {
+                                const t = yield n.window.showInputBox({
+                                    prompt:"Enter the Updating Value for the Node"
+                                }).then((s=>{
+                                    console.error("Value entered  is ", s);
+                                    let p;
+                                    if (s.match(this.hexRegex)) p = parseInt(s.substr(2), 16);
+                                    else if (s.match(this.binaryRegex)) p = parseInt(s.substr(2), 2);
+                                    else {
+                                        if (!s.match(/^[0-9]+/)) return t("Value entered is not a valid format.");
+                                        if (p = parseInt(s, 10), p >= this.maxValue) return t(`Value entered (${p}) is greater than the maximum value of ${this.maxValue}`)
+                                    }
+                                    e.node.setValue(p), this.registerProvider.refresh()
+                                    let [varName, value] = e.label.split(" = ");
+                                    n.debug.activeDebugSession.customRequest("update-register", {
+                                        label : varName,
+                                        value : p
+                                    }).then((v => {
+                                        console.error("List of registers", v)               
+                                    }))               
+                                }));
                             }))
                         }
                         debugSessionStarted(e) {
@@ -451,7 +499,7 @@
                                 const n = (0, i.parseQuery)(e.query),
                                     o = n.address.startsWith("0x") ? parseInt(n.address.substring(2), 16) : parseInt(n.address, 10),
                                     a = n.length.startsWith("0x") ? parseInt(n.length.substring(2), 16) : parseInt(n.length, 10);
-                                r.debug.activeDebugSession.customRequest("read-memory", {
+                                r.DebugSession.activeDebugSession.customRequest("read-memory", {
                                     address: o,
                                     length: a || 32
                                 }).then((e => {
@@ -653,6 +701,9 @@
                         }
                         getCopyValue() {
                             return null
+                        }
+                        registerPerformUpdate(){
+                            return Promise.resolve(!1)
                         }
                         setFormat(e) {
                             this.format = e
@@ -1284,6 +1335,9 @@
                         }
                         setFormat(e) {
                             this.format = e
+                        }
+                        registerPerformUpdate(){
+                            return Promise.resolve(!1)
                         }
                     }
                     t.BaseNode = d;
