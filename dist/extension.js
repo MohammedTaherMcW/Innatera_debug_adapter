@@ -202,8 +202,10 @@
                             const t = n.window.createTreeView("platformio-debug.peripherals", {
                                 treeDataProvider: this.peripheralProvider
                             });
-                            e.subscriptions.push(n.debug.registerDebugConfigurationProvider("platformio-debug", new d.PlatformIODebugConfigurationProvider),
-                            t, t.onDidExpandElement(this.peripheralProvider.onDidExpandElement.bind(this.peripheralProvider)), 
+                            e.subscriptions.push(n.debug.registerDebugConfigurationProvider("platformio-debug",
+                                new d.PlatformIODebugConfigurationProvider), 
+                            t, 
+                            t.onDidExpandElement(this.peripheralProvider.onDidExpandElement.bind(this.peripheralProvider)), 
                             t.onDidCollapseElement(this.peripheralProvider.onDidCollapseElement.bind(this.peripheralProvider)), 
                             n.window.registerTreeDataProvider("platformio-debug.registers", this.registerProvider), 
                             n.window.registerTreeDataProvider("platformio-debug.memory", this.memoryTreeProvider), 
@@ -219,6 +221,8 @@
                             n.commands.registerCommand("platformio-debug.registers.setFormat", this.registersSetFormat.bind(this)), 
                             n.commands.registerCommand("platformio-debug.registers.UpdateNode", this.registerUpdateNode.bind(this)), 
                             n.commands.registerCommand("platformio-debug.memory.deleteHistoryItem", this.memoryDeleteHistoryItem.bind(this)), 
+                            n.commands.registerCommand("platformio-debug.memory.ViewType", this.memoryViewType.bind(this)), 
+                            n.commands.registerCommand("platformio-debug.memory.updateNode", this.memoryUpdateItem.bind(this)),     
                             n.commands.registerCommand("platformio-debug.memory.clearHistory", this.memoryClearHistory.bind(this)), 
                             n.commands.registerCommand("platformio-debug.examineMemory", this.examineMemory.bind(this)), 
                             n.commands.registerCommand("platformio-debug.viewDisassembly", this.showDisassembly.bind(this)), 
@@ -226,7 +230,8 @@
                             n.debug.onDidReceiveDebugSessionCustomEvent(this.receivedCustomEvent.bind(this)), 
                             n.debug.onDidStartDebugSession(this.debugSessionStarted.bind(this)), 
                             n.debug.onDidTerminateDebugSession(this.debugSessionTerminated.bind(this)), 
-                            n.window.onDidChangeActiveTextEditor(this.activeEditorChanged.bind(this)), n.window.onDidChangeTextEditorSelection((e => {
+                            n.window.onDidChangeActiveTextEditor(this.activeEditorChanged.bind(this)), 
+                            n.window.onDidChangeTextEditorSelection((e => {
                                 e && e.textEditor.document.fileName.endsWith(".dbgmem") && this.memoryContentProvider.handleSelection(e)
                             })))
                         }
@@ -302,6 +307,71 @@
                                 t(e.label)
                             }), (e => {}))
                         }
+                        memoryViewType(e){
+                            
+                            const t =  n.window.showQuickPick([{
+                                label: "Default",
+                                description: "Show disassembly for functions when source cannot be located."
+                            }, {
+                                label: "Half Words",
+                                description: "Always show disassembly for functions."
+                            },{
+                                label: "Full Words",
+                                description: "Always show disassembly for functions." 
+                            }], {
+                                matchOnDescription: !0,
+                                ignoreFocusOut: !0
+                            }).then((o => {
+                                
+                                const [p, s] = e.label.split("+");
+
+                                const fileName = `/Memory [${p}+${s}].dbgmem`
+
+                                let PreviousEditors = n.workspace.textDocuments.filter((e => e.fileName === fileName))
+
+                                PreviousEditors.forEach(document => {
+                                    n.commands.executeCommand('workbench.action.closeActiveEditor', document.uri);
+                                });
+
+                                this.showMemoryContent(p,s,o.label);
+
+
+                            }))
+                        }
+                        memoryUpdateItem(e){
+                            function f(e) {
+                                return /^0x[0-9a-f]{1,8}$/i.test(e) || /^[0-9]+$/i.test(e) ? e : null
+                            }
+
+                            const [t, s] = e.label.split("+");
+                            const i = n.window.showInputBox({
+                            prompt: "Enter the starting Address ",
+                            placeHolder:t
+                            }).then(p => {
+                            if (f(p)) {
+                                n.window.showInputBox({
+                                placeHolder: "Prefix with 0x for hexadecimal format",
+                                ignoreFocusOut: true,
+                                prompt: "Update the value at address "
+                                }).then(z => {
+                                n.debug.activeDebugSession.customRequest("update-memory", {
+                                    address : p,
+                                    value : z
+                                }).then((v => {
+                                    
+                                    const fileName = `/Memory [${p}+${s}].dbgmem`
+
+                                    let PreviousEditors = n.workspace.textDocuments.filter((e => e.fileName === fileName))
+
+                                    PreviousEditors.forEach(document => {
+                                        n.commands.executeCommand('workbench.action.closeActiveEditor', document.uri);
+                                    });
+                                    this.showMemoryContent(p,s,'Default');
+                                }))        
+                                });
+                            }
+                            });
+                        }
                         memoryDeleteHistoryItem(e) {
                             const [t, s] = e.label.split("+");
                             this.memoryTreeProvider.deleteHistory(t, s)
@@ -313,7 +383,7 @@
                             function s(e) {
                                 return /^0x[0-9a-f]{1,8}$/i.test(e) || /^[0-9]+$/i.test(e) ? e : null
                             }
-                            if (this.isPIODebugSession()) return e && t ? this.showMemoryContent(e, t) : void n.window.showInputBox({
+                            if (this.isPIODebugSession()) return e && t ? this.showMemoryContent(e, t, 'Default') : void n.window.showInputBox({
                                 placeHolder: "Prefix with 0x for hexidecimal format",
                                 ignoreFocusOut: !0,
                                 prompt: "A start memory address"
@@ -323,13 +393,14 @@
                                     ignoreFocusOut: !0,
                                     prompt: "How many bytes to read?"
                                 }).then((t => {
-                                    s(t) ? (this.memoryTreeProvider.pushHistory(e, t), this.showMemoryContent(e, t)) : n.window.showErrorMessage("Invalid length entered")
+                                    s(t) ? (this.memoryTreeProvider.pushHistory(e, t),
+                                     this.showMemoryContent(e, t,'Default')) : n.window.showErrorMessage("Invalid length entered")
                                 }), (e => {})) : n.window.showErrorMessage("Invalid memory address entered")
                             }), (e => {}));
                             n.window.showErrorMessage("No debugging session available")
                         }
-                        showMemoryContent(e, t) {
-                            n.workspace.openTextDocument(n.Uri.parse(`examinememory:///Memory%20[${e}+${t}].dbgmem?address=${e}&length=${t}&timestamp=${(new Date).getTime()}`)).then((e => {
+                        showMemoryContent(e, t, s) {
+                            n.workspace.openTextDocument(n.Uri.parse(`examinememory:///Memory%20[${e}+${t}].dbgmem?address=${e}&length=${t}&timestamp=${(new Date).getTime()}&viewtype=${s}`)).then((e => {
                                 n.window.showTextDocument(e, {
                                     viewColumn: 2,
                                     preview: !1
@@ -361,7 +432,7 @@
                                     description: "Automatically choose format (Inherits from parent)",
                                     value: o.NumberFormat.Auto
                                 }, {
-                                    label: "Hex Values",
+                                    label: "Hex",
                                     description: "Format value in hexidecimal",
                                     value: o.NumberFormat.Hexidecimal
                                 }, {
@@ -498,29 +569,106 @@
                             return new Promise(((t, s) => {
                                 const n = (0, i.parseQuery)(e.query),
                                     o = n.address.startsWith("0x") ? parseInt(n.address.substring(2), 16) : parseInt(n.address, 10),
-                                    a = n.length.startsWith("0x") ? parseInt(n.length.substring(2), 16) : parseInt(n.length, 10);
-                                r.DebugSession.activeDebugSession.customRequest("read-memory", {
+                                    a = n.length.startsWith("0x") ? parseInt(n.length.substring(2), 16) : parseInt(n.length, 10),
+                                    p = n.viewtype;
+                                r.debug.activeDebugSession.customRequest("read-memory", {
                                     address: o,
                                     length: a || 32
                                 }).then((e => {
-                                    const s = e.bytes;
-                                    let r = o - o % 16;
-                                    const n = o - r;
-                                    let d = "";
-                                    d += "  Offset: 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F \t\n", d += (0, i.hexFormat)(r, 8, !1) + ": ";
-                                    let h = "";
-                                    for (let e = 0; e < n; e++) d += "   ", h += " ";
-                                    for (let e = 0; e < a; e++) {
-                                        const t = s[e];
-                                        d += (0, i.hexFormat)(t, 2, !1).toUpperCase() + " ", h += t <= 32 || t >= 127 && t <= 159 ? "." : String.fromCharCode(s[e]), (o + e) % 16 == 15 && e < a - 1 && (d += "  " + h, h = "", d += "\n", r += 16, d += (0, i.hexFormat)(r, 8, !1) + ": ")
-                                    }
-                                    const l = (16 - (o + a) % 16) % 16;
-                                    for (let e = 0; e < l; e++) d += "   ";
-                                    d += "  " + h, d += "\n", t(d)
+                                    if (p==='Default') this.byteViewType(e, o, a, t)
+                                    if (p==='Full Words') this.fullViewType(e, o, a, t)
+                                    if (p==='Half Words') this.halfViewType(e, o, a, t)
+                                    
                                 }), (e => {
                                     r.window.showErrorMessage(`Unable to read memory from ${(0,i.hexFormat)(o,8)} to ${(0,i.hexFormat)(o+a,8)}`), s(e.toString())
                                 }))
                             }))
+                        }
+                        fullViewType(e, o, a, t){
+                            const s = e.bytes;
+                            let r = o - o % 4;
+                            const n = o - r;
+                            let d = "";
+                            d += "  Offset:    00       04       08       0C         \t\n", d += (0, i.hexFormat)(r, 8, !1) + ": ";
+                            let h = "";
+                            for (let e = 0; e < n; e++) d += "   ", h += " ";
+                            for (let e = 0; e < a; e += 4) {
+                                const word = (s[e] << 24) | (s[e + 1] << 16) | (s[e + 2] << 8) | s[e + 3];  // Combine four bytes into a word
+                                d += (0, i.hexFormat)(word, 8, !1).toUpperCase() + " ";  // Display word
+                                for (let j = 0; j < 4; j++) {
+                                    h += (s[e + j] <= 32 || s[e + j] >= 127) ? "." : String.fromCharCode(s[e + j]);
+                                }
+            
+                                if ((o + e) % 16 == 12 && e < a - 4) {
+                                    d += "  " + h;
+                                    h = "";
+                                    d += "\n";
+                                    r += 16;
+                                    d += (0, i.hexFormat)(r, 8, !1) + ": ";
+                                }
+                            }
+                            const l = (8 - (o + a) % 4) % 4;
+
+                            for (let e = 0; e < l; e++) d += "   ";
+
+
+                            d += "  " + h, d += "\n", t(d)
+
+                        }
+                        halfViewType(e, o, a, t){
+                            const s = e.bytes;
+                            let r = o - o % 8;
+                            const n = o - r;
+                            let d = "";
+                            d += "  Offset:  00   02   04   06   08   0A   0C   0E   \t\n", d += (0, i.hexFormat)(r, 8, !1) + ": ";
+                            let h = "";
+                            for (let e = 0; e < n; e++) d += "   ", h += " ";
+
+                            for (let e = 0; e < a; e += 2) {
+                                const halfWord = (s[e] << 8) | s[e + 1];  
+                                d += (0, i.hexFormat)(halfWord, 4, !1).toUpperCase() + " ";  
+                                h += (s[e] <= 32 || s[e] >= 127) ? "." : String.fromCharCode(s[e]);
+                                h += (s[e + 1] <= 32 || s[e + 1] >= 127) ? "." : String.fromCharCode(s[e + 1]);
+
+                                if ((o + e) % 16 == 14 && e < a - 2) {
+                                    d += "  " + h;
+                                    h = "";
+                                    d += "\n";
+                                    r += 16;
+                                    d += (0, i.hexFormat)(r, 8, !1) + ": ";
+                                }
+                            }
+                            const l = (8 - (o + a) % 8) % 8;
+
+                            for (let e = 0; e < l; e++) d += "   ";
+
+
+                            d += "  " + h, d += "\n", t(d)
+
+
+                        }
+                        byteViewType(e, o, a, t){
+                            const s = e.bytes;
+                            let r = o - o % 16;
+                            const n = o - r;
+                            let d = "";
+                            d += "  Offset: 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F \t\n", d += (0, i.hexFormat)(r, 8, !1) + ": ";
+                            let h = "";
+                            for (let e = 0; e < n; e++) d += "   ", h += " ";
+
+                            for (let e = 0; e < a; e++) {
+                                const t = s[e];
+                                d += (0, i.hexFormat)(t, 2, !1).toUpperCase() + " ", h += t <= 32 || t >= 127 && t <= 159 ? "." : String.fromCharCode(s[e]), (o + e) % 16 == 15 && e < a - 1 && (d += "  " + h, h = "", d += "\n", r += 16, d += (0, i.hexFormat)(r, 8, !1) + ": ")
+                            }
+
+
+                            const l = (16 - (o + a) % 16) % 16;
+
+                            for (let e = 0; e < l; e++) d += "   ";
+
+
+                            d += "  " + h, d += "\n", t(d)
+
                         }
                         update(e) {
                             this._onDidChange.fire(e.uri)

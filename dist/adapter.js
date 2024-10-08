@@ -283,14 +283,38 @@
                                         t.body = e, this.sendErrorResponse(t, 110, "Unable to execute command")
                                     }));
                                     break;
-                                    case "update-register":
+                                case "update-register":
                                         this.customUpdateRegisterRequest(t, s);
+                                        break;
+                                case "update-memory":
+                                        this.UpdateMemory(t,s);
                                         break;
                                 default:
                                     t.body = {
                                         error: "Invalid command."
                                     }, this.sendResponse(t)
                                 }
+                            }
+                            UpdateMemory(t,s){
+                                let command = `data-write-memory-bytes ${s.address}  ${s.value}`
+    
+                                this.miDebugger.sendCommand(command).then((r => {
+                                    if ("done" === r.resultRecords.resultClass) {
+                                        t.body = {
+                                            success: s.address,
+                                            Command: command
+                                        }
+                                    } else t.body = {
+                                        error: r.resultRecords.results,
+                                        Command: command                                    
+                                    };
+                                    this.sendResponse(t)
+                                }), (r => {
+                                    t.body = {
+                                        error: r,
+                                        Command: command
+                                    }, this.sendErrorResponse(t, 116, `Unable to Update register list: ${JSON.stringify(r)} "and " ${JSON.stringify(t)}`)
+                                }))
                             }
                             customUpdateRegisterRequest(t, s) {
 
