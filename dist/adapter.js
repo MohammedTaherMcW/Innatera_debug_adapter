@@ -228,7 +228,7 @@
                         processLaunchAttachRequest(e, t) {
                             this.quit = !1, this.attached = !1, this.started = !1, this.crashed = !1, this.debugReady = !1, this.stopped = !1, this.breakpointMap = new Map, this.fileExistsCache = new Map;
                             const s = ["debug"];
-                            this.args.projectEnvName && s.push("-e", this.args.projectEnvName), this.args.loadMode && s.push("--load-mode", this.args.loadMode), s.push("--interface", "gdb", "--interpreter=mi2", "-q"), this.miDebugger = new c.MI2("platformio", s), this.initDebugger(), this.miDebugger.printCalls = !!this.args.showDevDebugOutput, this.miDebugger.debugOutput = !!this.args.showDevDebugOutput, this.miDebugger.once("debug-ready", (() => {
+                            this.args.projectEnvName && s.push("-e", this.args.projectEnvName), this.args.loadMode && s.push("--load-mode", this.args.loadMode), s.push("--interface", "gdb", "--interpreter=mi2", "-q"), this.miDebugger = new c.MI2("innaterapluginio", s), this.initDebugger(), this.miDebugger.printCalls = !!this.args.showDevDebugOutput, this.miDebugger.debugOutput = !!this.args.showDevDebugOutput, this.miDebugger.once("debug-ready", (() => {
                                 this.debugReady = !0, this.stopped = !0, this.stoppedReason = "start", this.sendEvent(new d.StoppedEvent("start", this.currentThreadId, !0)), this.sendEvent(new v("start", this.currentThreadId))
                             })), this.miDebugger.connect(this.args.cwd, ['interpreter-exec console "source .pioinit"', "enable-pretty-printing"]).then((() => {
                                 this.symbolTable = new m.SymbolTable(this.args.toolchainBinDir, this.args.executable);
