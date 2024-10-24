@@ -1,5 +1,5 @@
 ! function(e, t) {
-    "object" == typeof exports && "object" == typeof module ? module.exports = t(require("vscode-debugadapter")) : "function" == typeof define && define.amd ? define("platformio-vscode-debug", ["vscode-debugadapter"], t) : "object" == typeof exports ? exports["platformio-vscode-debug"] = t(require("vscode-debugadapter")) : e["platformio-vscode-debug"] = t(e["vscode-debugadapter"])
+    "object" == typeof exports && "object" == typeof module ? module.exports = t(require("vscode-debugadapter")) : "function" == typeof define && define.amd ? define("Innatera-vscode-debug", ["vscode-debugadapter"], t) : "object" == typeof exports ? exports["platformio-vscode-debug"] = t(require("vscode-debugadapter")) : e["Innatera-vscode-debug"] = t(e["vscode-debugadapter"])
 }(global, (function(e) {
     return (() => {
         "use strict";
@@ -228,7 +228,7 @@
                         processLaunchAttachRequest(e, t) {
                             this.quit = !1, this.attached = !1, this.started = !1, this.crashed = !1, this.debugReady = !1, this.stopped = !1, this.breakpointMap = new Map, this.fileExistsCache = new Map;
                             const s = ["debug"];
-                            this.args.projectEnvName && s.push("-e", this.args.projectEnvName), this.args.loadMode && s.push("--load-mode", this.args.loadMode), s.push("--interface", "gdb", "--interpreter=mi2", "-q"), this.miDebugger = new c.MI2("platformio", s), this.initDebugger(), this.miDebugger.printCalls = !!this.args.showDevDebugOutput, this.miDebugger.debugOutput = !!this.args.showDevDebugOutput, this.miDebugger.once("debug-ready", (() => {
+                            this.args.projectEnvName && s.push("-e", this.args.projectEnvName), this.args.loadMode && s.push("--load-mode", this.args.loadMode), s.push("--interface", "gdb", "--interpreter=mi2", "-q"), this.miDebugger = new c.MI2("innaterapluginio", s), this.initDebugger(), this.miDebugger.printCalls = !!this.args.showDevDebugOutput, this.miDebugger.debugOutput = !!this.args.showDevDebugOutput, this.miDebugger.once("debug-ready", (() => {
                                 this.debugReady = !0, this.stopped = !0, this.stoppedReason = "start", this.sendEvent(new d.StoppedEvent("start", this.currentThreadId, !0)), this.sendEvent(new v("start", this.currentThreadId))
                             })), this.miDebugger.connect(this.args.cwd, ['interpreter-exec console "source .pioinit"', "enable-pretty-printing"]).then((() => {
                                 this.symbolTable = new m.SymbolTable(this.args.toolchainBinDir, this.args.executable);
@@ -1039,7 +1039,7 @@
                             return new Promise(((s, r) => {
                                 const n = [...this.args],
                                     o = Object.create(process.env);
-                                process.env.PLATFORMIO_PATH && (o.PATH = process.env.PLATFORMIO_PATH, o.Path = process.env.PLATFORMIO_PATH), this.process = i.spawn(this.application, n, {
+                                process.env.Innatera_PATH && (o.PATH = process.env.Innatera_PATH, o.Path = process.env.Innatera_PATH), this.process = i.spawn(this.application, n, {
                                     cwd: e,
                                     env: o,
                                     shell: "win32" === process.platform
@@ -1078,7 +1078,7 @@
                                     this.debugOutput && this.log("log", "GDB -> App: " + JSON.stringify(t));
                                     let s = !1;
                                     void 0 !== t.token && this.handlers[t.token] && (this.handlers[t.token](t), delete this.handlers[t.token], s = !0), !s && t.resultRecords && "error" === t.resultRecords.resultClass && this.log("stderr", t.result("msg") || e), t.outOfBandRecord && (t.outOfBandRecord.forEach((e => {
-                                        if (e.isStream) e.content.includes("PlatformIO: Initialization completed") && (this.debugReadyTimeout = setTimeout((() => {
+                                        if (e.isStream) e.content.includes("Innatera: Initialization completed") && (this.debugReadyTimeout = setTimeout((() => {
                                             this.debugReadyFired = !0, this.emit("debug-ready")
                                         }), 200), this.once("generic-stopped", (() => {
                                             this.debugReadyFired || (clearTimeout(this.debugReadyTimeout), this.emit("debug-ready"))

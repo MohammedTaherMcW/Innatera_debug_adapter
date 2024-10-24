@@ -130,13 +130,13 @@
                             const t = new r.TreeItem("Disassemble function");
                             t.command = {
                                 title: "Disassemble function",
-                                command: "platformio-debug.viewDisassembly"
+                                command: "Innatera-debug.viewDisassembly"
                             };
                             const s = "Switch to " + (this.forced ? "code" : "assembly"),
                                 i = new r.TreeItem(s);
                             return i.command = {
                                 title: s,
-                                command: "platformio-debug.setForceDisassembly",
+                                command: "Innatera-debug.setForceDisassembly",
                                 arguments: [this.forced ? "Auto" : "Forced"]
                             }, [t, i]
                         }
@@ -199,34 +199,34 @@
                     class f {
                         constructor(e) {
                             this.adapterOutputChannel = null, this.functionSymbols = null, this.context = e, this.registerProvider = new p.RegisterTreeProvider, this.peripheralProvider = new m.PeripheralTreeProvider, this.memoryTreeProvider = new c.MemoryTreeProvider, this.disassemblyTreeProvider = new l.DisassemblyTreeProvider, this.memoryContentProvider = new u.MemoryContentProvider;
-                            const t = n.window.createTreeView("platformio-debug.peripherals", {
+                            const t = n.window.createTreeView("Innatera-debug.peripherals", {
                                 treeDataProvider: this.peripheralProvider
                             });
-                            e.subscriptions.push(n.debug.registerDebugConfigurationProvider("platformio-debug",
+                            e.subscriptions.push(n.debug.registerDebugConfigurationProvider("Innatera-debug",
                                 new d.PlatformIODebugConfigurationProvider), 
                             t, 
                             t.onDidExpandElement(this.peripheralProvider.onDidExpandElement.bind(this.peripheralProvider)), 
                             t.onDidCollapseElement(this.peripheralProvider.onDidCollapseElement.bind(this.peripheralProvider)), 
-                            n.window.registerTreeDataProvider("platformio-debug.registers", this.registerProvider), 
-                            n.window.registerTreeDataProvider("platformio-debug.memory", this.memoryTreeProvider), 
-                            n.window.registerTreeDataProvider("platformio-debug.disassembly", this.disassemblyTreeProvider), 
+                            n.window.registerTreeDataProvider("Innatera-debug.registers", this.registerProvider), 
+                            n.window.registerTreeDataProvider("Innatera-debug.memory", this.memoryTreeProvider), 
+                            n.window.registerTreeDataProvider("Innatera-debug.disassembly", this.disassemblyTreeProvider), 
                             n.workspace.registerTextDocumentContentProvider("examinememory", this.memoryContentProvider), 
                             n.workspace.registerTextDocumentContentProvider("disassembly", new h.DisassemblyContentProvider), 
-                            n.commands.registerCommand("platformio-debug.peripherals.updateNode", this.peripheralsUpdateNode.bind(this)), 
-                            n.commands.registerCommand("platformio-debug.peripherals.selectedNode", this.peripheralsSelectedNode.bind(this)), 
-                            n.commands.registerCommand("platformio-debug.peripherals.copyValue", this.peripheralsCopyValue.bind(this)), 
-                            n.commands.registerCommand("platformio-debug.peripherals.setFormat", this.peripheralsSetFormat.bind(this)), 
-                            n.commands.registerCommand("platformio-debug.registers.selectedNode", this.registersSelectedNode.bind(this)), 
-                            n.commands.registerCommand("platformio-debug.registers.copyValue", this.registersCopyValue.bind(this)), 
-                            n.commands.registerCommand("platformio-debug.registers.setFormat", this.registersSetFormat.bind(this)), 
-                            n.commands.registerCommand("platformio-debug.registers.UpdateNode", this.registerUpdateNode.bind(this)), 
-                            n.commands.registerCommand("platformio-debug.memory.deleteHistoryItem", this.memoryDeleteHistoryItem.bind(this)), 
-                            n.commands.registerCommand("platformio-debug.memory.ViewType", this.memoryViewType.bind(this)), 
-                            n.commands.registerCommand("platformio-debug.memory.updateNode", this.memoryUpdateItem.bind(this)),     
-                            n.commands.registerCommand("platformio-debug.memory.clearHistory", this.memoryClearHistory.bind(this)), 
-                            n.commands.registerCommand("platformio-debug.examineMemory", this.examineMemory.bind(this)), 
-                            n.commands.registerCommand("platformio-debug.viewDisassembly", this.showDisassembly.bind(this)), 
-                            n.commands.registerCommand("platformio-debug.setForceDisassembly", this.setForceDisassembly.bind(this)), 
+                            n.commands.registerCommand("Innatera-debug.peripherals.updateNode", this.peripheralsUpdateNode.bind(this)), 
+                            n.commands.registerCommand("Innatera-debug.peripherals.selectedNode", this.peripheralsSelectedNode.bind(this)), 
+                            n.commands.registerCommand("Innatera-debug.peripherals.copyValue", this.peripheralsCopyValue.bind(this)), 
+                            n.commands.registerCommand("Innatera-debug.peripherals.setFormat", this.peripheralsSetFormat.bind(this)), 
+                            n.commands.registerCommand("Innatera-debug.registers.selectedNode", this.registersSelectedNode.bind(this)), 
+                            n.commands.registerCommand("Innatera-debug.registers.copyValue", this.registersCopyValue.bind(this)), 
+                            n.commands.registerCommand("Innatera-debug.registers.setFormat", this.registersSetFormat.bind(this)), 
+                            n.commands.registerCommand("Innatera-debug.registers.UpdateNode", this.registerUpdateNode.bind(this)), 
+                            n.commands.registerCommand("Innatera-debug.memory.deleteHistoryItem", this.memoryDeleteHistoryItem.bind(this)), 
+                            n.commands.registerCommand("Innatera-debug.memory.ViewType", this.memoryViewType.bind(this)), 
+                            n.commands.registerCommand("Innatera-debug.memory.updateNode", this.memoryUpdateItem.bind(this)),     
+                            n.commands.registerCommand("Innatera-debug.memory.clearHistory", this.memoryClearHistory.bind(this)), 
+                            n.commands.registerCommand("Innatera-debug.examineMemory", this.examineMemory.bind(this)), 
+                            n.commands.registerCommand("Innatera-debug.viewDisassembly", this.showDisassembly.bind(this)), 
+                            n.commands.registerCommand("Innatera-debug.setForceDisassembly", this.setForceDisassembly.bind(this)), 
                             n.debug.onDidReceiveDebugSessionCustomEvent(this.receivedCustomEvent.bind(this)), 
                             n.debug.onDidStartDebugSession(this.debugSessionStarted.bind(this)), 
                             n.debug.onDidTerminateDebugSession(this.debugSessionTerminated.bind(this)), 
@@ -236,7 +236,7 @@
                             })))
                         }
                         isPIODebugSession() {
-                            return n.debug.activeDebugSession && "platformio-debug" === n.debug.activeDebugSession.type
+                            return n.debug.activeDebugSession && "Innatera-debug" === n.debug.activeDebugSession.type
                         }
                         activeEditorChanged(e) {
                             if (!e || !this.isPIODebugSession()) return;
@@ -501,14 +501,14 @@
                             }))
                         }
                         debugSessionStarted(e) {
-                            "platformio-debug" === e.type && (this.functionSymbols = null, e.customRequest("get-arguments").then((e => {
+                            "Innatera-debug" === e.type && (this.functionSymbols = null, e.customRequest("get-arguments").then((e => {
                                 this.registerProvider.debugSessionStarted(this.context.workspaceState.get("debugRegistersTreeState")), this.peripheralProvider.debugSessionStarted(e.svdPath, this.context.workspaceState.get("debugPeripheralsTreeState")), this.memoryTreeProvider.debugSessionStarted(this.context.workspaceState.get("debugMemoryTreeState")), this.disassemblyTreeProvider.debugSessionStarted()
                             }), (e => {
                                 console.error(e)
                             })))
                         }
                         debugSessionTerminated(e) {
-                            "platformio-debug" === e.type && (this.context.workspaceState.update("debugRegistersTreeState", this.registerProvider.dumpSettings()), this.context.workspaceState.update("debugPeripheralsTreeState", this.peripheralProvider.dumpSettings()), this.context.workspaceState.update("debugMemoryTreeState", this.memoryTreeProvider.dumpSettings()), this.registerProvider.debugSessionTerminated(), this.peripheralProvider.debugSessionTerminated(), this.memoryTreeProvider.debugSessionTerminated(), this.disassemblyTreeProvider.debugSessionTerminated())
+                            "Innatera-debug" === e.type && (this.context.workspaceState.update("debugRegistersTreeState", this.registerProvider.dumpSettings()), this.context.workspaceState.update("debugPeripheralsTreeState", this.peripheralProvider.dumpSettings()), this.context.workspaceState.update("debugMemoryTreeState", this.memoryTreeProvider.dumpSettings()), this.registerProvider.debugSessionTerminated(), this.peripheralProvider.debugSessionTerminated(), this.memoryTreeProvider.debugSessionTerminated(), this.disassemblyTreeProvider.debugSessionTerminated())
                         }
                         receivedCustomEvent(e) {
                             if (this.isPIODebugSession()) switch (e.event) {
@@ -730,7 +730,7 @@
                             const t = new r.TreeItem("Enter address...");
                             return t.command = {
                                 title: "Enter memory address...",
-                                command: "platformio-debug.examineMemory"
+                                command: "Innatera-debug.examineMemory"
                             }, [t]
                         }
                         getHistoryNodes() {
@@ -738,7 +738,7 @@
                                 const t = new r.TreeItem(e);
                                 return t.command = {
                                     title: `Examine memory at ${e}`,
-                                    command: "platformio-debug.examineMemory",
+                                    command: "Innatera-debug.examineMemory",
                                     arguments: e.split("+")
                                 }, t
                             }))
@@ -818,7 +818,7 @@
                     class c extends n.TreeItem {
                         constructor(e, t, s, r) {
                             super(e, t), this.label = e, this.collapsibleState = t, this.contextValue = s, this.node = r, this.command = {
-                                command: "platformio-debug.peripherals.selectedNode",
+                                command: "Innatera-debug.peripherals.selectedNode",
                                 arguments: [r],
                                 title: "Selected Node"
                             }
@@ -1461,7 +1461,7 @@
                     class a extends r.TreeItem {
                         constructor(e, t, s, r) {
                             super(e, t), this.label = e, this.collapsibleState = t, this.contextValue = s, this.node = r, this.command = {
-                                command: "platformio-debug.registers.selectedNode",
+                                command: "Innatera-debug.registers.selectedNode",
                                 arguments: [r],
                                 title: "Selected Node"
                             }
